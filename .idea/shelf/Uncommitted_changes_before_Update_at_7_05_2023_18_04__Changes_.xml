@@ -1,0 +1,9 @@
+<changelist name="Uncommitted_changes_before_Update_at_7_05_2023_18_04_[Changes]" date="1683471882950" recycled="false" toDelete="true">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_05_2023_18_04_[Changes]/shelved.patch" />
+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 7.05.2023 18:04 [Changes]" />
+  <binary>
+    <option name="BEFORE_PATH" value="src/test/resources/excel_test_data/mysmoketestdata.xlsx" />
+    <option name="AFTER_PATH" />
+    <option name="SHELVED_PATH" />
+  </binary>
+</changelist>

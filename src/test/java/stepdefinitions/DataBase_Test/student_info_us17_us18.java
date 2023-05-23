@@ -6,6 +6,8 @@ import io.cucumber.java.en.Then;
 import java.sql.*;
 
 import static org.junit.Assert.assertEquals;
+import static stepdefinitions.Api_Test.student_info_controller.S01_Post.student_info_id;
+
 public class student_info_us17_us18 {
     ResultSet resultSet;
     Connection connection;
@@ -15,7 +17,7 @@ public class student_info_us17_us18 {
         //SELECT * FROM teacher WHERE id = 35;
         connection = DriverManager.getConnection("jdbc:postgresql://164.92.252.42:5432/school_management", "select_user", "43w5ijfso");
         statement = connection.createStatement();
-        resultSet = statement.executeQuery("select name from contact_message where email = 'rabiaa@gmail.com'");
+        resultSet = statement.executeQuery("SELECT * FROM student_info  where id= "+student_info_id+"");
         resultSet.next();
     }
     @Then("validete data student_info")

@@ -1,0 +1,141 @@
+Index: src/test/java/stepdefinitions/Api_Test/vice_dean_controller/Get01.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package stepdefinitions.Api_Test.vice_dean_controller;\r\n\r\nimport io.cucumber.java.en.Given;\r\nimport io.cucumber.java.en.Then;\r\nimport io.restassured.response.Response;\r\n\r\nimport org.codehaus.jackson.map.ObjectMapper;\r\nimport pojos.Vice_Dean_Controller_Object_Pojo;\r\nimport pojos.Vice_Dean_Controller_Root_Pojo;\r\nimport test_data.ManagementonSchoolsTestData;\r\nimport utilities.ObjectMapperUtils;\r\n\r\nimport java.io.IOException;\r\nimport java.util.Map;\r\n\r\nimport static base_urls.ManagementonSchoolsBaseUrl.specViceDean;\r\n\r\nimport static io.restassured.RestAssured.given;\r\nimport static base_urls.ManagementonSchoolsBaseUrl.specAdmin;\r\n\r\n\r\npublic class Get01 {\r\n    //http://164.92.252.42:8080/vicedean/getAll\r\n    Response response;\r\n\r\n    @Given(\"Nilufer Send query to get guest user by userId={string}\")\r\n    public void nilufer_send_query_to_get_guest_user_by_user_id(String string) {\r\n       specAdmin.pathParams(\"first\",\"vicedean\",\"second\",\"getAll\");\r\n       response = given(specAdmin).get(\"{first}/{second}\");\r\n       response.prettyPrint();\r\n\r\n\r\n    Vice_Dean_Controller_Object_Pojo expectedData;\r\n\r\n    @Given(\"user sends get request for vice_dean data\")\r\n    public void user_sends_post_request_for_vice_dean_data() {\r\n        // http://209.38.244.227/vicedean/getAll\r\n        //Set the url\r\n        specViceDean.pathParams(\"first\", \"vicedean\", \"second\", \"save\");\r\n\r\n\r\n        //Set the expected data\r\n        expectedData = new Vice_Dean_Controller_Object_Pojo(\"1341-08-06\",\"Izmir\",\r\n                \"MALE\", \"Nilufer\",\"123123Ee\",\"896-865-4545\",\"761-25-3434\",\"ozkul\",\r\n                \"niloz\");\r\n\r\n        //Send the request and get the response\r\n        response = given(specViceDean).body(expectedData).post(\"{first}/{second}\");\r\n        response.prettyPrint();\r\n        System.out.println(\"response = \" + response);\r\n\r\n    }\r\n    @Then(\"Nilufer body should be like : username={string} name={string} surname={string} birthDay={string} sss={string} birthPlace={string} phoneNumber\\\"{int}-{int}-{int}\\\" gender=\\\"MALE\\\"\")\r\n    public void nilufer_body_should_be_like_username_name_surname_birth_day_sss_birth_place_phone_number_gender_male(String string, String string2, String string3, String string4, String string5, String string6, Integer int1, Integer int2, Integer int3) {\r\n\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/stepdefinitions/Api_Test/vice_dean_controller/Get01.java b/src/test/java/stepdefinitions/Api_Test/vice_dean_controller/Get01.java
+--- a/src/test/java/stepdefinitions/Api_Test/vice_dean_controller/Get01.java	
++++ b/src/test/java/stepdefinitions/Api_Test/vice_dean_controller/Get01.java	
+@@ -3,18 +3,6 @@
+ import io.cucumber.java.en.Given;
+ import io.cucumber.java.en.Then;
+ import io.restassured.response.Response;
+-
+-import org.codehaus.jackson.map.ObjectMapper;
+-import pojos.Vice_Dean_Controller_Object_Pojo;
+-import pojos.Vice_Dean_Controller_Root_Pojo;
+-import test_data.ManagementonSchoolsTestData;
+-import utilities.ObjectMapperUtils;
+-
+-import java.io.IOException;
+-import java.util.Map;
+-
+-import static base_urls.ManagementonSchoolsBaseUrl.specViceDean;
+-
+ import static io.restassured.RestAssured.given;
+ import static base_urls.ManagementonSchoolsBaseUrl.specAdmin;
+ 
+@@ -22,33 +10,11 @@
+ public class Get01 {
+     //http://164.92.252.42:8080/vicedean/getAll
+     Response response;
+-
+     @Given("Nilufer Send query to get guest user by userId={string}")
+     public void nilufer_send_query_to_get_guest_user_by_user_id(String string) {
+-       specAdmin.pathParams("first","vicedean","second","getAll");
+-       response = given(specAdmin).get("{first}/{second}");
+-       response.prettyPrint();
+-
+-
+-    Vice_Dean_Controller_Object_Pojo expectedData;
+-
+-    @Given("user sends get request for vice_dean data")
+-    public void user_sends_post_request_for_vice_dean_data() {
+-        // http://209.38.244.227/vicedean/getAll
+-        //Set the url
+-        specViceDean.pathParams("first", "vicedean", "second", "save");
+-
+-
+-        //Set the expected data
+-        expectedData = new Vice_Dean_Controller_Object_Pojo("1341-08-06","Izmir",
+-                "MALE", "Nilufer","123123Ee","896-865-4545","761-25-3434","ozkul",
+-                "niloz");
+-
+-        //Send the request and get the response
+-        response = given(specViceDean).body(expectedData).post("{first}/{second}");
++        specAdmin.pathParams("first","vicedean","second","getAll");
++        response = given(specAdmin).get("{first}/{second}");
+         response.prettyPrint();
+-        System.out.println("response = " + response);
+-
+     }
+     @Then("Nilufer body should be like : username={string} name={string} surname={string} birthDay={string} sss={string} birthPlace={string} phoneNumber\"{int}-{int}-{int}\" gender=\"MALE\"")
+     public void nilufer_body_should_be_like_username_name_surname_birth_day_sss_birth_place_phone_number_gender_male(String string, String string2, String string3, String string4, String string5, String string6, Integer int1, Integer int2, Integer int3) {
+Index: src/test/java/base_urls/ManagementonSchoolsBaseUrl.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package base_urls;\r\n\r\nimport io.restassured.builder.RequestSpecBuilder;\r\nimport io.restassured.http.ContentType;\r\nimport io.restassured.specification.RequestSpecification;\r\n\r\nimport static utilities.ManagementonSchoolsAuthentication.generateToken;\r\n//import static utilities.ManagementonSchoolsAuthentication.generateToken;\r\n\r\npublic class ManagementonSchoolsBaseUrl  {\r\n    public static RequestSpecification specAdmin;\r\n    public static RequestSpecification specTeacher;\r\n    public static RequestSpecification specDean;\r\n    public static RequestSpecification specViceDean;\r\n    public static RequestSpecification specStudent;\r\n\r\n    public  static void schoolsetupAdmin(){\r\n        specAdmin=new RequestSpecBuilder().setContentType(ContentType.JSON).\r\n                addHeader(\"Authorization\",generateToken(\"485424698\",\"Admin\"))\r\n                .setBaseUri(\"http://164.92.252.42:8080\").build();\r\n    }\r\n    public  static void schoolsetupTeacher(){\r\n        specTeacher=new RequestSpecBuilder().setContentType(ContentType.JSON).\r\n                addHeader(\"Authorization\",generateToken(\"12345678\",\"team11emin\"))\r\n                .setBaseUri(\"http://164.92.252.42:8080\").build();\r\n    }\r\n    public  static void schoolsetupDean(){\r\n        specDean=new RequestSpecBuilder().setContentType(ContentType.JSON).\r\n                addHeader(\"Authorization\",generateToken(\"12345678\",\"gooddean\"))\r\n\r\n                .setBaseUri(\"http://164.92.252.42\").build();\r\n\r\n                .setBaseUri(\"http://164.92.252.42:8080\").build();\r\n\r\n    }\r\n    public  static void schoolsetupViceDean(){\r\n        specViceDean=new RequestSpecBuilder().setContentType(ContentType.JSON).\r\n                addHeader(\"Authorization\",generateToken(\"123456789\",\"Team11Cucumber\"))\r\n                .setBaseUri(\"http://164.92.252.42:8080\").build();\r\n    }\r\n\r\n    public  static void schoolsetupStudent(){\r\n        specStudent=new RequestSpecBuilder().setContentType(ContentType.JSON).\r\n                addHeader(\"Authorization\",generateToken(\"12345678\",\"team11\"))\r\n                .setBaseUri(\"http://164.92.252.42:8080\").build();\r\n    }\r\n}\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/base_urls/ManagementonSchoolsBaseUrl.java b/src/test/java/base_urls/ManagementonSchoolsBaseUrl.java
+--- a/src/test/java/base_urls/ManagementonSchoolsBaseUrl.java	
++++ b/src/test/java/base_urls/ManagementonSchoolsBaseUrl.java	
+@@ -1,11 +1,15 @@
+ package base_urls;
+ 
++
++
++
++
+ import io.restassured.builder.RequestSpecBuilder;
+ import io.restassured.http.ContentType;
+ import io.restassured.specification.RequestSpecification;
+ 
+ import static utilities.ManagementonSchoolsAuthentication.generateToken;
+-//import static utilities.ManagementonSchoolsAuthentication.generateToken;
++
+ 
+ public class ManagementonSchoolsBaseUrl  {
+     public static RequestSpecification specAdmin;
+@@ -27,11 +31,7 @@
+     public  static void schoolsetupDean(){
+         specDean=new RequestSpecBuilder().setContentType(ContentType.JSON).
+                 addHeader("Authorization",generateToken("12345678","gooddean"))
+-
+-                .setBaseUri("http://164.92.252.42").build();
+-
+                 .setBaseUri("http://164.92.252.42:8080").build();
+-
+     }
+     public  static void schoolsetupViceDean(){
+         specViceDean=new RequestSpecBuilder().setContentType(ContentType.JSON).
+@@ -44,6 +44,4 @@
+                 addHeader("Authorization",generateToken("12345678","team11"))
+                 .setBaseUri("http://164.92.252.42:8080").build();
+     }
+-}
+-
+-
++}
+\ No newline at end of file
+Index: src/test/java/utilities/ManagementonSchoolsAuthentication.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package utilities;\r\n\r\nimport io.restassured.http.ContentType;\r\nimport io.restassured.response.Response;\r\n\r\n\r\nimport java.util.HashMap;\r\nimport java.util.Map;\r\n\r\nimport static io.restassured.RestAssured.given;\r\n\r\npublic class ManagementonSchoolsAuthentication {\r\n\r\n    public static String generateToken(String password,String username) {\r\n        String url=\"http://164.92.252.42:8080/auth/login\";\r\n        Map<String, Object>token=new HashMap<>();\r\n        token.put( \"password\", password);\r\n        token.put(\"username\", username);\r\n        Response response=given().contentType(ContentType.JSON).body(token).post(url);\r\n        response.prettyPrint();\r\n        return response.jsonPath().getString(\"token\");\r\n    }\r\n\r\n\r\n}\r\n\r\n    }\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/utilities/ManagementonSchoolsAuthentication.java b/src/test/java/utilities/ManagementonSchoolsAuthentication.java
+--- a/src/test/java/utilities/ManagementonSchoolsAuthentication.java	
++++ b/src/test/java/utilities/ManagementonSchoolsAuthentication.java	
+@@ -21,8 +21,15 @@
+         return response.jsonPath().getString("token");
+     }
+ 
++}
++
++
++
+ 
+-}
++
++
++
++
++
+ 
+-    }
+ 

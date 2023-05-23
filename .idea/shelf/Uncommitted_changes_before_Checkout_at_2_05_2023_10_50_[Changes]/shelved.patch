@@ -1,0 +1,984 @@
+Index: src/test/java/stepdefinitions/Api_Test/student_info_controller/S02_Put.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package stepdefinitions.Api_Test.student_info_controller;\r\n\r\nimport com.github.javafaker.Faker;\r\nimport io.cucumber.java.en.Given;\r\nimport io.cucumber.java.en.Then;\r\nimport io.restassured.path.json.JsonPath;\r\nimport io.restassured.response.Response;\r\nimport org.junit.Assert;\r\nimport pojos.StudentInfoPojo;\r\nimport pojos.StudentInfoRootPojo;\r\nimport utilities.ObjectMapperUtils;\r\n\r\nimport static base_urls.ManagementonSchoolsBaseUrl.spec;\r\nimport static io.restassured.RestAssured.given;\r\nimport static org.junit.Assert.assertEquals;\r\nimport static stepdefinitions.Api_Test.student_info_controller.S01_Post.student_info_id;\r\n\r\npublic class S02_Put {\r\n\r\n    static int absente_update = Faker.instance().number().numberBetween(4,99);\r\n    static int educationTermId =  Faker.instance().number().numberBetween(1,2);\r\n    static double finalExam_update =  Faker.instance().number().randomDouble(1,1,99);\r\n    static String infoNote_update =  Faker.instance().lorem().sentence(11);\r\n    static int lessonId =  Faker.instance().number().numberBetween(1,2);\r\n    static double midtermExam_update =  Faker.instance().number().randomDouble(1,1,99);\r\n    static int studentId =  Faker.instance().number().numberBetween(4,305);\r\n    Response response;\r\n    StudentInfoPojo expectedData;\r\n    @Given(\"teacher sends the student info data_PUT\")\r\n    public void teacherSendsTheStudentInfoData_PUT() {\r\n\r\n        spec.pathParams(\"first\", \"studentInfo\", \"second\", \"save\",\"third\",student_info_id);\r\n        expectedData = new StudentInfoPojo(absente_update,\r\n                educationTermId,\r\n                finalExam_update,\r\n                infoNote_update,\r\n                lessonId,\r\n                midtermExam_update,\r\n                studentId);\r\n        System.out.println(\"expectedData = \" + expectedData);\r\n        response = given().spec(spec).when().body(expectedData).put(\"{first}/{second}/{third}\");\r\n        response.prettyPrint();\r\n\r\n    }\r\n\r\n    @Then(\"teacher gets the student info data and assert_PUT\")\r\n    public void teacherGetsTheStudentInfoDataAndAssert_PUT() {\r\n        StudentInfoRootPojo actualData = ObjectMapperUtils.convertJsonToJava(response.asString(), StudentInfoRootPojo.class);\r\n        System.out.println(\"actualData = \" + actualData);\r\n\r\n        assertEquals(200,response.statusCode());\r\n\r\n        assertEquals(expectedData.getAbsentee(),actualData.getStudentInfoObjectPojo().getAbsentee());\r\n        assertEquals(expectedData.getEducationTermId(),actualData.getStudentInfoObjectPojo().getEducationTerm());\r\n        assertEquals(expectedData.getFinalExam(),actualData.getStudentInfoObjectPojo().getFinalExam());\r\n        assertEquals(expectedData.getInfoNote(),actualData.getStudentInfoObjectPojo().getInfoNote());\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/test/java/stepdefinitions/Api_Test/student_info_controller/S02_Put.java b/src/test/java/stepdefinitions/Api_Test/student_info_controller/S02_Put.java
+--- a/src/test/java/stepdefinitions/Api_Test/student_info_controller/S02_Put.java	
++++ b/src/test/java/stepdefinitions/Api_Test/student_info_controller/S02_Put.java	
+@@ -3,14 +3,16 @@
+ import com.github.javafaker.Faker;
+ import io.cucumber.java.en.Given;
+ import io.cucumber.java.en.Then;
+-import io.restassured.path.json.JsonPath;
++
+ import io.restassured.response.Response;
+-import org.junit.Assert;
++
+ import pojos.StudentInfoPojo;
+ import pojos.StudentInfoRootPojo;
++import pojos.StudentInfoUpdatePojo;
+ import utilities.ObjectMapperUtils;
+ 
+-import static base_urls.ManagementonSchoolsBaseUrl.spec;
++
++import static base_urls.ManagementonSchoolsBaseUrl.specTeacher;
+ import static io.restassured.RestAssured.given;
+ import static org.junit.Assert.assertEquals;
+ import static stepdefinitions.Api_Test.student_info_controller.S01_Post.student_info_id;
+@@ -25,20 +27,19 @@
+     static double midtermExam_update =  Faker.instance().number().randomDouble(1,1,99);
+     static int studentId =  Faker.instance().number().numberBetween(4,305);
+     Response response;
+-    StudentInfoPojo expectedData;
++    StudentInfoUpdatePojo expectedData;
+     @Given("teacher sends the student info data_PUT")
+     public void teacherSendsTheStudentInfoData_PUT() {
+ 
+-        spec.pathParams("first", "studentInfo", "second", "save","third",student_info_id);
+-        expectedData = new StudentInfoPojo(absente_update,
++        specTeacher.pathParams("first", "studentInfo", "second", "update","third",student_info_id);
++        expectedData = new StudentInfoUpdatePojo(absente_update,
+                 educationTermId,
+                 finalExam_update,
+                 infoNote_update,
+                 lessonId,
+-                midtermExam_update,
+-                studentId);
++                midtermExam_update);
+         System.out.println("expectedData = " + expectedData);
+-        response = given().spec(spec).when().body(expectedData).put("{first}/{second}/{third}");
++        response = given().spec(specTeacher).when().body(expectedData).put("{first}/{second}/{third}");
+         response.prettyPrint();
+ 
+     }
+@@ -53,7 +54,11 @@
+         assertEquals(expectedData.getAbsentee(),actualData.getStudentInfoObjectPojo().getAbsentee());
+         assertEquals(expectedData.getEducationTermId(),actualData.getStudentInfoObjectPojo().getEducationTerm());
+         assertEquals(expectedData.getFinalExam(),actualData.getStudentInfoObjectPojo().getFinalExam());
++        assertEquals(expectedData.getMidtermExam(),actualData.getStudentInfoObjectPojo().getMidtermExam());
+         assertEquals(expectedData.getInfoNote(),actualData.getStudentInfoObjectPojo().getInfoNote());
++        assertEquals("Student Info updated Successfully",actualData.getMessage());
++        assertEquals("CREATED",actualData.getHttpStatus());
++
+ 
+ 
+ 
+Index: src/test/java/stepdefinitions/Api_Test/student_info_controller/S04_Get.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package stepdefinitions.Api_Test.student_info_controller;\r\n\r\nimport io.cucumber.java.en.Given;\r\nimport io.cucumber.java.en.Then;\r\n\r\npublic class S04_Get {\r\n    @Given(\"teacher sends the student info data_GET\")\r\n    public void teacherSendsTheStudentInfoData_GET() {\r\n    }\r\n    @Then(\"teacher gets the student info data and assert_GET\")\r\n    public void teacherGetsTheStudentInfoDataAndAssert_GET() {\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/test/java/stepdefinitions/Api_Test/student_info_controller/S04_Get.java b/src/test/java/stepdefinitions/Api_Test/student_info_controller/S04_Get.java
+--- a/src/test/java/stepdefinitions/Api_Test/student_info_controller/S04_Get.java	
++++ b/src/test/java/stepdefinitions/Api_Test/student_info_controller/S04_Get.java	
+@@ -2,12 +2,30 @@
+ 
+ import io.cucumber.java.en.Given;
+ import io.cucumber.java.en.Then;
++import io.restassured.path.json.JsonPath;
++import io.restassured.response.Response;
++import org.junit.Assert;
++
++import static base_urls.ManagementonSchoolsBaseUrl.specTeacher;
++import static io.restassured.RestAssured.given;
++import static stepdefinitions.Api_Test.student_info_controller.S01_Post.student_info_id;
+ 
+ public class S04_Get {
++
++    Response response;
+     @Given("teacher sends the student info data_GET")
+     public void teacherSendsTheStudentInfoData_GET() {
++        specTeacher.pathParams("first", "studentInfo", "second", "get","third",student_info_id);
++        response = given().spec(specTeacher).when().delete("{first}/{second}/{third}");
++        response.prettyPrint();
++
+     }
+     @Then("teacher gets the student info data and assert_GET")
+     public void teacherGetsTheStudentInfoDataAndAssert_GET() {
++
++        JsonPath jsonPath = response.jsonPath();
++        Assert.assertEquals(404,jsonPath.getString("statusCode"));
++        Assert.assertEquals("Error: Student Info with id 256 Not found",jsonPath.getString("message"));
++
+     }
+ }
+Index: src/test/java/stepdefinitions/Api_Test/student_info_controller/S03_Delete.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package stepdefinitions.Api_Test.student_info_controller;\r\n\r\nimport io.cucumber.java.en.Given;\r\nimport io.cucumber.java.en.Then;\r\n\r\npublic class S03_Delete {\r\n    @Given(\"teacher sends the student info data_DELETE\")\r\n    public void teacherSendsTheStudentInfoData_DELETE() {\r\n    }\r\n\r\n    @Then(\"teacher gets the student info data and assert_DELETE\")\r\n    public void teacherGetsTheStudentInfoDataAndAssert_DELETE() {\r\n    }\r\n}\r\n
+===================================================================
+diff --git a/src/test/java/stepdefinitions/Api_Test/student_info_controller/S03_Delete.java b/src/test/java/stepdefinitions/Api_Test/student_info_controller/S03_Delete.java
+--- a/src/test/java/stepdefinitions/Api_Test/student_info_controller/S03_Delete.java	
++++ b/src/test/java/stepdefinitions/Api_Test/student_info_controller/S03_Delete.java	
+@@ -2,13 +2,30 @@
+ 
+ import io.cucumber.java.en.Given;
+ import io.cucumber.java.en.Then;
++import io.restassured.path.json.JsonPath;
++import io.restassured.response.Response;
++import org.junit.Assert;
++
++import static base_urls.ManagementonSchoolsBaseUrl.specTeacher;
++import static io.restassured.RestAssured.given;
++import static stepdefinitions.Api_Test.student_info_controller.S01_Post.student_info_id;
+ 
+ public class S03_Delete {
++
++    Response response;
+     @Given("teacher sends the student info data_DELETE")
+     public void teacherSendsTheStudentInfoData_DELETE() {
++
++        specTeacher.pathParams("first", "studentInfo", "second", "delete","third",student_info_id);
++        response = given().spec(specTeacher).when().delete("{first}/{second}/{third}");
++        response.prettyPrint();
+     }
+ 
+     @Then("teacher gets the student info data and assert_DELETE")
+     public void teacherGetsTheStudentInfoDataAndAssert_DELETE() {
++
++        JsonPath jsonPath = response.jsonPath();
++        Assert.assertEquals(200,jsonPath.getString("httpStatus"));
++        Assert.assertEquals("Student Info deleted Successfully",jsonPath.getString("message"));
+     }
+ }
+Index: src/test/java/stepdefinitions/Api_Test/student_info_controller/DataBaseDeneme.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package stepdefinitions.Api_Test.student_info_controller;\r\n\r\nimport io.cucumber.java.en.Given;\r\nimport io.cucumber.java.en.Then;\r\nimport utilities.DataBaseMethods;\r\nimport utilities.ReusableMethods;\r\n\r\nimport java.sql.*;\r\n\r\nimport static org.junit.Assert.assertEquals;\r\nimport static org.junit.Assert.assertTrue;\r\n\r\npublic class DataBaseDeneme {\r\n    ResultSet resultSet;\r\n    Connection connection;\r\n    Statement statement;\r\n    @Given(\"query gonderir\")\r\n    public void queryGonderir() throws SQLException {\r\n        //SELECT * FROM teacher WHERE id = 35;\r\n        connection = DriverManager.getConnection(\"jdbc:postgresql://164.92.252.42:5432/school_management\", \"select_user\", \"43w5ijfso\");\r\n        statement = connection.createStatement();\r\n        resultSet = statement.executeQuery(\"SELECT * FROM teacher WHERE id = 5\");\r\n\r\n        resultSet.next();\r\n\r\n\r\n\r\n    }\r\n\r\n    @Then(\"validete data\")\r\n    public void valideteData() throws SQLException {\r\n        assertEquals(\"1995-06-07\", resultSet.getString(\"birth_day\"));\r\n        assertEquals(\"USA\", resultSet.getString(\"birth_place\"));\r\n        assertEquals(\"FEMALE\", resultSet.getString(\"gender\"));\r\n        assertEquals(\"Nancy\", resultSet.getString(\"name\"));\r\n        assertEquals(\"555-990-6767\", resultSet.getString(\"phone_number\"));\r\n        assertEquals(\"555-90-6767\", resultSet.getString(\"ssn\"));\r\n        assertEquals(\"CAN\", resultSet.getString(\"surname\"));\r\n        assertEquals(\"nancy13\", resultSet.getString(\"username\"));\r\n        assertEquals(\"nancy_can@gmail.com\", resultSet.getString(\"email\"));\r\n        assertTrue(resultSet.getBoolean(\"is_advisor\"));\r\n        assertEquals(4, resultSet.getInt(\"user_role_id\"));\r\n\r\n        connection.close();\r\n        statement.close();\r\n        resultSet.close();\r\n\r\n    }\r\n\r\n\r\n\r\n\r\n}\r\n
+===================================================================
+diff --git a/src/test/java/stepdefinitions/Api_Test/student_info_controller/DataBaseDeneme.java b/src/test/java/stepdefinitions/Api_Test/student_info_controller/DataBaseDeneme.java
+--- a/src/test/java/stepdefinitions/Api_Test/student_info_controller/DataBaseDeneme.java	
++++ b/src/test/java/stepdefinitions/Api_Test/student_info_controller/DataBaseDeneme.java	
+@@ -9,37 +9,32 @@
+ 
+ import static org.junit.Assert.assertEquals;
+ import static org.junit.Assert.assertTrue;
++import static stepdefinitions.Api_Test.student_info_controller.S01_Post.*;
+ 
+ public class DataBaseDeneme {
+     ResultSet resultSet;
+     Connection connection;
+     Statement statement;
++
+     @Given("query gonderir")
+     public void queryGonderir() throws SQLException {
+         //SELECT * FROM teacher WHERE id = 35;
+         connection = DriverManager.getConnection("jdbc:postgresql://164.92.252.42:5432/school_management", "select_user", "43w5ijfso");
+         statement = connection.createStatement();
+-        resultSet = statement.executeQuery("SELECT * FROM teacher WHERE id = 5");
+-
++        resultSet = statement.executeQuery("SELECT * FROM meet where id=1");
+         resultSet.next();
+-
+-
+-
+     }
+ 
+     @Then("validete data")
+     public void valideteData() throws SQLException {
+-        assertEquals("1995-06-07", resultSet.getString("birth_day"));
+-        assertEquals("USA", resultSet.getString("birth_place"));
+-        assertEquals("FEMALE", resultSet.getString("gender"));
+-        assertEquals("Nancy", resultSet.getString("name"));
+-        assertEquals("555-990-6767", resultSet.getString("phone_number"));
+-        assertEquals("555-90-6767", resultSet.getString("ssn"));
+-        assertEquals("CAN", resultSet.getString("surname"));
+-        assertEquals("nancy13", resultSet.getString("username"));
+-        assertEquals("nancy_can@gmail.com", resultSet.getString("email"));
+-        assertTrue(resultSet.getBoolean("is_advisor"));
+-        assertEquals(4, resultSet.getInt("user_role_id"));
++        assertEquals(absente, resultSet.getInt("absente"));
++        assertEquals(educationTermId, resultSet.getInt("education_term_id"));
++        assertEquals(finalExam, resultSet.getInt("final_exam"));
++        assertEquals(infoNote, resultSet.getString("info_note"));
++        assertEquals(lessonId, resultSet.getInt("lesson_lesson_id"));
++        assertEquals(midtermExam, resultSet.getInt("midterm_exam"));
++        assertEquals(studentId, resultSet.getInt("student_id"));
++
+ 
+         connection.close();
+         statement.close();
+@@ -48,6 +43,4 @@
+     }
+ 
+ 
+-
+-
+ }
+Index: test-output/SparkReport/Spark.html
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>\r\n\r\n<!DOCTYPE html>\r\n<html>\r\n<head>\r\n<meta charset=\"UTF-8\">\r\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\r\n<title>My Spark Reports</title>\r\n<link rel=\"apple-touch-icon\" href=\"https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@b00a2d0486596e73dd7326beacf352c639623a0e/commons/img/logo.png\">\r\n<link rel=\"shortcut icon\" href=\"https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@b00a2d0486596e73dd7326beacf352c639623a0e/commons/img/logo.png\">\r\n<link href=\"https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@d6562a79075e061305ccfdb82f01e5e195e2d307/spark/css/spark-style.css\" rel=\"stylesheet\" />\r\n<link href=\"https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css\" rel=\"stylesheet\">\r\n<script src=\"https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@7cc78ce/spark/js/jsontree.js\"></script>\r\n<style type=\"text/css\"></style></head><body class=\"spa bdd-report dark\">\r\n  <div class=\"app\">\r\n    <div class=\"layout\">\r\n<div class=\"header navbar\">\r\n<div class=\"vheader\">\r\n<div class=\"nav-logo\">\r\n<a href=\"#\">\r\n<div class=\"logo\" style=\"background-image: url('https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@b00a2d0486596e73dd7326beacf352c639623a0e/commons/img/logo.png')\"></div>\r\n</a>\r\n</div>\r\n<ul class=\"nav-left\">\r\n<li class=\"search-box\">\r\n<a class=\"search-toggle\" href=\"#\">\r\n<i class=\"search-icon fa fa-search\"></i>\r\n<i class=\"search-icon-close fa fa-close\"></i>\r\n</a>\r\n</li>\r\n<li class=\"search-input\"><input id=\"search-tests\" class=\"form-control\" type=\"text\" placeholder=\"Search...\"></li>\r\n</ul>\r\n<ul class=\"nav-right\">\r\n<li class=\"m-r-10\">\r\n<a href=\"#\"><span class=\"badge badge-primary\">Smoke Test Report</span></a>\r\n</li>\r\n<li class=\"m-r-10\">\r\n<a href=\"#\"><span class=\"badge badge-primary\">Apr 28, 2023 03:03:42 PM</span></a>\r\n</li>\r\n</ul>\r\n</div>\r\n</div><div class=\"side-nav\">\r\n<div class=\"side-nav-inner\">\r\n<ul class=\"side-nav-menu\">\r\n<li class=\"nav-item dropdown\" onclick=\"toggleView('dashboard-view')\">\r\n<a id=\"nav-dashboard\" class=\"dropdown-toggle\" href=\"#\">\r\n<span class=\"ico\"><i class=\"fa fa-bar-chart\"></i></span>\r\n</a>\r\n</li>\r\n<li class=\"nav-item dropdown\" onclick=\"toggleView('test-view')\">\r\n<a id=\"nav-test\" class=\"dropdown-toggle\" href=\"#\">\r\n<span class=\"ico\"><i class=\"fa fa-list\"></i></span>\r\n</a>\r\n</li>\r\n<li class=\"nav-item dropdown\" onclick=\"toggleView('category-view')\">\r\n<a id=\"nav-category\" class=\"dropdown-toggle\" href=\"#\">\r\n<span class=\"ico\"><i class=\"fa fa-tag\"></i></span>\r\n</a>\r\n</li>\r\n<li class=\"nav-item dropdown\" onclick=\"toggleView('exception-view')\">\r\n<a id=\"nav-exception\" class=\"dropdown-toggle\" href=\"#\">\r\n<span class=\"ico\"><i class=\"fa fa-bug\"></i></span>\r\n</a>\r\n</li>\r\n</ul>\r\n</div>\r\n</div>      <div class=\"vcontainer\">\r\n        <div class=\"main-content\">\r\n<div class=\"container-fluid p-4 view dashboard-view\">\r\n<div class=\"row\">\r\n<div class=\"col-md-3\">\r\n<div class=\"card\"><div class=\"card-body\">\r\n<p class=\"m-b-0\">Started</p>\r\n<h3>Apr 28, 2023 03:03:42 PM</h3>\r\n</div></div>\r\n</div>\r\n<div class=\"col-md-3\">\r\n<div class=\"card\"><div class=\"card-body\">\r\n<p class=\"m-b-0\">Ended</p>\r\n<h3>Apr 28, 2023 03:04:04 PM</h3>\r\n</div></div>\r\n</div>\r\n<div class=\"col-md-3\">\r\n<div class=\"card\"><div class=\"card-body\">\r\n<p class=\"m-b-0 text-pass\">Features Passed</p>\r\n<h3>0</h3>\r\n</div></div>\r\n</div>\r\n<div class=\"col-md-3\">\r\n<div class=\"card\"><div class=\"card-body\">\r\n<p class=\"m-b-0 text-fail\">Features Failed</p>\r\n<h3>1</h3>\r\n</div></div>\r\n</div>\r\n</div>\r\n<div class=\"row\">\r\n<div class=\"col-md-4\">\r\n<div class=\"card\">\r\n<div class=\"card-header\">\r\n<h6 class=\"card-title\">Features</h6>\r\n</div>\r\n<div class=\"card-body\">\r\n<div class=\"\">\r\n<canvas id='parent-analysis' width='115' height='90'></canvas>\r\n</div>\r\n</div>\r\n<div class=\"card-footer\">\r\n<div><small data-tooltip='0%'>\r\n<b>0</b> features passed\r\n</small>\r\n</div>\r\n<div>\r\n<small data-tooltip='100%'><b>1</b> features failed,\r\n<b>0</b> skipped, <b data-tooltip='0%'>0</b> others\r\n</small>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n<div class=\"col-md-4\">\r\n<div class=\"card\">\r\n<div class=\"card-header\">\r\n<h6 class=\"card-title\">Scenarios</h6>\r\n</div>\r\n<div class=\"card-body\">\r\n<div class=\"\">\r\n<canvas id='child-analysis' width='115' height='90'></canvas>\r\n</div>\r\n</div>\r\n<div class=\"card-footer\">\r\n<div><small data-tooltip='0%'><b>0</b> scenarios passed</small></div>\r\n<div>\r\n<small data-tooltip='100%'><b>1</b> scenarios failed,\r\n<b>0</b> skipped, <b data-tooltip='%'>0</b> others\r\n</small>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n<div class=\"col-md-4\">\r\n<div class=\"card\">\r\n<div class=\"card-header\">\r\n<h6 class=\"card-title\">Steps</h6>\r\n</div>\r\n<div class=\"card-body\">\r\n<div class=\"\">\r\n<canvas id='grandchild-analysis' width='115' height='90'></canvas>\r\n</div>\r\n</div>\r\n<div class=\"card-footer\">\r\n<div><small data-tooltip='33%'><b>1</b> steps passed</small></div>\r\n<div>\r\n<small data-tooltip='33%'><b>1</b> steps failed,\r\n<b>1</b> skipped, <b data-tooltip='%'>0</b> others\r\n</small>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n<div class=\"row\"><div class=\"col-md-12\">\r\n<div class=\"card\"><div class=\"card-header\"><p>Timeline</p></div>\r\n<div class=\"card-body pt-0\"><div>\r\n<canvas id=\"timeline\" height=\"120\"></canvas>\r\n</div></div>\r\n</div>\r\n</div></div>\r\n<script>\r\nvar timeline = {\r\n\"jdbc\":13.652\r\n};\r\n</script>\r\n<div class=\"row\">\r\n<div class=\"col-lg-6 col-md-12 category-container\">\r\n<div class=\"card\">\r\n<div class=\"card-header\"><p>Tags</p></div>\r\n<div class=\"card-body pb-0 pt-0\"><table class=\"table table-sm table-bordered\">\r\n<thead><tr class=\"bg-gray\"><th>Name</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Others</th><th>Passed %</th></tr></thead><tbody>\r\n<tr>\r\n<td>@DBtest</td>\r\n<td>0</td>\r\n<td>1</td>\r\n<td>0</td>\r\n<td>0</td>\r\n<td>0%</td>\r\n</tr>\r\n</tbody>\r\n</table></div>\r\n</div>\r\n</div>\r\n<div class=\"col-lg-6 col-md-12 sysenv-container\">\r\n<div class=\"card\">\r\n<div class=\"card-header\"><p>System/Environment</p></div>\r\n<div class=\"card-body pb-0 pt-0\"><table class=\"table table-sm table-bordered\">\r\n<thead><tr class=\"bg-gray\"><th>Name</th><th>Value</th></tr></thead>\r\n<tbody>\r\n<tr>\r\n<td>os</td>\r\n<td>Windows</td>\r\n</tr>\r\n</tbody>\r\n</table></div>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n<script>\r\nvar statusGroup = {\r\nparentCount: 5,\r\npassParent: 0,\r\nfailParent: 1,\r\nwarningParent: 0,\r\nskipParent: 0,\r\nchildCount: 5,\r\npassChild: 0,\r\nfailChild: 1,\r\nwarningChild: 0,\r\nskipChild: 0,\r\ninfoChild: 0,\r\ngrandChildCount: 5,\r\npassGrandChild: 1,\r\nfailGrandChild: 1,\r\nwarningGrandChild: 0,\r\nskipGrandChild: 1,\r\ninfoGrandChild: 0,\r\neventsCount: 5,\r\n};\r\n</script><div class=\"test-wrapper row view test-view\">\r\n  <div class=\"test-list\">\r\n    <div class=\"test-list-tools\">\r\n<ul class=\"tools pull-left\">\r\n<li><a href=\"#\"><span class=\"font-size-14\">Tests</span></a></li>\r\n</ul>\r\n<ul class=\"tools text-right\">\r\n<li class=\"dropdown\">\r\n<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"fa fa-exclamation-circle\"></i></a>\r\n<ul id=\"status-toggle\" class=\"dropdown-menu dropdown-md p-v-0\">\r\n<a class=\"dropdown-item\" status=\"fail\" href=\"#\"><span>Fail</span><span class=\"status danger\"></span></a>\r\n<div class=\"dropdown-divider\"></div>\r\n<a status=\"clear\" class=\"dropdown-item\" href=\"#\"><span>Clear</span><span class=\"pull-right\"><i class=\"fa fa-close\"></i></span></a>\r\n</ul>\r\n</li>\r\n<li class=\"dropdown\">\r\n<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"fa fa-tag\"></i></a>\r\n<ul id=\"tag-toggle\" class=\"dropdown-menu dropdown-md p-v-0\">\r\n<a class=\"dropdown-item\" href=\"#\">@DBtest</a>\r\n</ul>\r\n</li>\r\n</ul>\r\n</div>    <div class=\"test-list-wrapper scrollable\">\r\n      <ul class=\"test-list-item\">\r\n        <li class=\"test-item\"  status=\"fail\" test-id=\"1\"\r\n          author=\"\"\r\n          tag=\"\"\r\n          device=\"\">\r\n          <div class=\"test-detail\">\r\n            <p class=\"name\">jdbc</p>\r\n            <p class=\"text-sm\">\r\n              <span>3:03:50 PM</span> / <span>00:00:13:652</span>\r\n              <span class=\"badge fail-bg log float-right\">Fail</span>\r\n            </p>\r\n          </div>\r\n          <div class=\"test-contents d-none\">\r\n<div class=\"detail-head\">\r\n<div class=\"p-v-10\">\r\n<div class=\"info\">\r\n<h5 class=\"test-status text-fail\">jdbc</h5>\r\n<span class='badge badge-success'>04.28.2023 3:03:50 PM</span>\r\n<span class='badge badge-danger'>04.28.2023 3:04:04 PM</span>\r\n<span class='badge badge-default'>00:00:13:652</span>\r\n&middot; <span class='uri-anchor badge badge-default'>#test-id=1</span>\r\n<span class='badge badge-default pointer float-right ml-1 et'><i class=\"fa fa-chevron-down\"></i></span>\r\n<span class='badge badge-default pointer float-right ct'><i class=\"fa fa-chevron-up\"></i></span>\r\n</div>\r\n<div class=\"m-t-10 m-l-5\"></div>\r\n</div>\r\n</div>\r\n<div class=\"accordion mt-4\">\r\n  <div class=\"card\">\r\n    <div class=\"card-header\" role=\"tab\">\r\n      <div class=\"card-title\">\r\n        <div class=\"node\" id=\"2\"><span class=\"badge log fail-bg mr-2\">Fail</span>JDBC_DENEME</div>\r\n          <div class=\"status-avatar float-right mr-4\">\r\n            <i class=\"fa fa-paperclip\"></i>\r\n          </div>\r\n      </div>\r\n    </div>\r\n        <div class=\"\">\r\n          <div class=\"card-body\">\r\n              <div class=\"step fail-bg\" title=\"stepdefinitions.Api_Test.student_info_controller.DataBaseDeneme.queryGonderir()\">\r\n                <span>Given query gonderir</span>\r\n      <div>\r\n        <textarea disabled class=\"code-block\">java.sql.SQLException: No suitable driver found for jdbc:postgresql://164.92.252.42:5432/school_management\r\n\tat java.sql/java.sql.DriverManager.getConnection(DriverManager.java:708)\r\n\tat java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)\r\n\tat stepdefinitions.Api_Test.student_info_controller.DataBaseDeneme.queryGonderir(DataBaseDeneme.java:20)\r\n\tat ✽.query gonderir(file:///C:/Users/ferhat/IdeaProjects/team11/./src/test/resources/features/ApiFeatures/jdbc_deneme.feature:4)\r\n</textarea>\r\n      \r\n      </div>\r\n              </div>\r\n              <div class=\"step skip-bg\" title=\"stepdefinitions.Api_Test.student_info_controller.DataBaseDeneme.valideteData()\">\r\n                <span>Then validete data</span>\r\n      <div>Step skipped\r\n      </div>\r\n              </div>\r\n              <div class=\"step pass-bg\" title=\"AFTER\">\r\n                <span>hooks.Hooks.tearDownScenarios(io.cucumber.java.Scenario)</span>\r\n      <div>failed_scenario_JDBC_DENEME\r\n          <div class=\"row mb-3\"><div class=\"col-md-3\">\r\n<img data-featherlight='../embedded1.png' src=\"../embedded1.png\">\r\n    \r\n    </div></div>\r\n</div>\r\n      <div>\r\n      </div>\r\n              </div>\r\n          </div>\r\n        </div>\r\n  </div>\r\n</div>\r\n          </div>\r\n        </li>\r\n      </ul>\r\n    </div>\r\n  </div>\r\n<div class=\"test-content scrollable\">\r\n<div class=\"test-content-tools\">\r\n<ul><li><a class=\"back-to-test\" href=\"#\"><i class=\"fa fa-arrow-left\"></i></a></li></ul>\r\n</div>\r\n<div class=\"test-content-detail\"><div class=\"detail-body\"></div></div>\r\n</div></div>\r\n<div class=\"test-wrapper row view category-view attributes-view\">\r\n<div class=\"test-list\">\r\n<div class=\"test-list-tools\">\r\n<ul class=\"tools pull-left\"><li><a href=\"\"><span class=\"font-size-14\">Category</span></a></li></ul>\r\n<ul class=\"tools text-right\"><li><a href=\"#\"><span class=\"badge badge-primary\">1</span></a></li></ul>\r\n</div>\r\n<div class=\"test-list-wrapper scrollable\">\r\n<ul class=\"test-list-item\">\r\n<li class=\"test-item\">\r\n<div class=\"test-detail\">\r\n<span class=\"meta\">\r\n<span class='badge log badge-danger'>1</span>\r\n</span>\r\n<p class=\"name\">@DBtest</p>\r\n<p class=\"duration text-sm\">1 tests</p>\r\n</div>\r\n<div class=\"test-contents d-none\">\r\n<div class=\"info\">\r\n<h4>@DBtest</h4>\r\n<span status=\"fail\" class='badge log badge-danger'>1 failed</span>\r\n</div>\r\n<table class='table table-sm mt-4'>\r\n<thead>\r\n<tr>\r\n<th class=\"status-col\">Status</th>\r\n<th class=\"timestamp-col\">Timestamp</th>\r\n<th>TestName</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"tag-test-status\" status=\"fail\">\r\n<td><span class=\"badge log fail-bg\">Fail</span></td>\r\n<td>15:03:50 PM</td>\r\n<td>\r\n<a href=\"#\" class=\"linked\" test-id='1' id='2'>JDBC_DENEME</a>\r\n<div class=\"\">\r\n<span class=\"badge badge-default\">jdbc.JDBC_DENEME</span>\r\n</div>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n</div>\r\n</li>\r\n</ul>\r\n</div>\r\n</div>\r\n<div class=\"test-content scrollable\">\r\n<div class=\"test-content-detail\">\r\n<div class=\"detail-body\"></div>\r\n</div>\r\n</div>\r\n</div><div class=\"test-wrapper row view exception-view attributes-view\">\r\n<div class=\"test-list\">\r\n<div class=\"test-list-tools\">\r\n<ul class=\"tools pull-left\"><li><a href=\"\"><span class=\"font-size-14\">Exception</span></a></li></ul>\r\n<ul class=\"tools text-right\"><li><a href=\"#\"><span class=\"badge badge-primary\">1</span></a></li></ul>\r\n</div>\r\n<div class=\"test-list-wrapper scrollable\">\r\n<ul class=\"test-list-item\">\r\n<li class=\"test-item\">\r\n<div class=\"test-detail\">\r\n<span class=\"meta\">\r\n<span class='badge log badge-danger'>1</span>\r\n</span>\r\n<p class=\"name\">java.sql.SQLException</p>\r\n<p class=\"duration text-sm\">1 tests</p>\r\n</div>\r\n<div class=\"test-contents d-none\">\r\n<div class=\"info\">\r\n<h4>java.sql.SQLException</h4>\r\n<span status=\"fail\" class='badge log badge-danger'>1 failed</span>\r\n</div>\r\n<table class='table table-sm mt-4'>\r\n<thead>\r\n<tr>\r\n<th class=\"status-col\">Status</th>\r\n<th class=\"timestamp-col\">Timestamp</th>\r\n<th>TestName</th>\r\n</tr>\r\n</thead>\r\n<tbody>\r\n<tr class=\"tag-test-status\" status=\"fail\">\r\n<td><span class=\"badge log fail-bg\">Fail</span></td>\r\n<td>15:03:50 PM</td>\r\n<td>\r\n<a href=\"#\" class=\"linked\" test-id='1' id='3'>Given query gonderir</a>\r\n<div class=\"\">\r\n<span class=\"badge badge-default\">jdbc.JDBC_DENEME.Given query gonderir</span>\r\n</div>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n</div>\r\n</li>\r\n</ul>\r\n</div>\r\n</div>\r\n<div class=\"test-content scrollable\">\r\n<div class=\"test-content-detail\">\r\n<div class=\"detail-body\"></div>\r\n</div>\r\n</div>\r\n</div>        </div>\r\n      </div>\r\n    </div>\r\n  </div>\r\n<script src=\"https://cdn.jsdelivr.net/gh/extent-framework/extent-github-cdn@d6562a79075e061305ccfdb82f01e5e195e2d307/spark/js/spark-script.js\"></script>\r\n<script type=\"text/javascript\"></script></body>\r\n</html>
+===================================================================
+diff --git a/test-output/SparkReport/Spark.html b/test-output/SparkReport/Spark.html
+--- a/test-output/SparkReport/Spark.html	
++++ b/test-output/SparkReport/Spark.html	
+@@ -35,7 +35,7 @@
+ <a href="#"><span class="badge badge-primary">Smoke Test Report</span></a>
+ </li>
+ <li class="m-r-10">
+-<a href="#"><span class="badge badge-primary">Apr 28, 2023 03:03:42 PM</span></a>
++<a href="#"><span class="badge badge-primary">May 2, 2023 10:41:25 AM</span></a>
+ </li>
+ </ul>
+ </div>
+@@ -71,13 +71,13 @@
+ <div class="col-md-3">
+ <div class="card"><div class="card-body">
+ <p class="m-b-0">Started</p>
+-<h3>Apr 28, 2023 03:03:42 PM</h3>
++<h3>May 2, 2023 10:41:25 AM</h3>
+ </div></div>
+ </div>
+ <div class="col-md-3">
+ <div class="card"><div class="card-body">
+ <p class="m-b-0">Ended</p>
+-<h3>Apr 28, 2023 03:04:04 PM</h3>
++<h3>May 2, 2023 10:42:04 AM</h3>
+ </div></div>
+ </div>
+ <div class="col-md-3">
+@@ -130,7 +130,7 @@
+ <div class="card-footer">
+ <div><small data-tooltip='0%'><b>0</b> scenarios passed</small></div>
+ <div>
+-<small data-tooltip='100%'><b>1</b> scenarios failed,
++<small data-tooltip='100%'><b>4</b> scenarios failed,
+ <b>0</b> skipped, <b data-tooltip='%'>0</b> others
+ </small>
+ </div>
+@@ -148,10 +148,10 @@
+ </div>
+ </div>
+ <div class="card-footer">
+-<div><small data-tooltip='33%'><b>1</b> steps passed</small></div>
++<div><small data-tooltip='25%'><b>4</b> steps passed</small></div>
+ <div>
+-<small data-tooltip='33%'><b>1</b> steps failed,
+-<b>1</b> skipped, <b data-tooltip='%'>0</b> others
++<small data-tooltip='25%'><b>4</b> steps failed,
++<b>8</b> skipped, <b data-tooltip='%'>0</b> others
+ </small>
+ </div>
+ </div>
+@@ -167,7 +167,7 @@
+ </div></div>
+ <script>
+ var timeline = {
+-"jdbc":13.652
++"Add_Student_info":34.049
+ };
+ </script>
+ <div class="row">
+@@ -177,9 +177,9 @@
+ <div class="card-body pb-0 pt-0"><table class="table table-sm table-bordered">
+ <thead><tr class="bg-gray"><th>Name</th><th>Passed</th><th>Failed</th><th>Skipped</th><th>Others</th><th>Passed %</th></tr></thead><tbody>
+ <tr>
+-<td>@DBtest</td>
++<td>@teacher</td>
+ <td>0</td>
+-<td>1</td>
++<td>4</td>
+ <td>0</td>
+ <td>0</td>
+ <td>0%</td>
+@@ -213,15 +213,15 @@
+ skipParent: 0,
+ childCount: 5,
+ passChild: 0,
+-failChild: 1,
++failChild: 4,
+ warningChild: 0,
+ skipChild: 0,
+ infoChild: 0,
+ grandChildCount: 5,
+-passGrandChild: 1,
+-failGrandChild: 1,
++passGrandChild: 4,
++failGrandChild: 4,
+ warningGrandChild: 0,
+-skipGrandChild: 1,
++skipGrandChild: 8,
+ infoGrandChild: 0,
+ eventsCount: 5,
+ };
+@@ -243,7 +243,7 @@
+ <li class="dropdown">
+ <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-tag"></i></a>
+ <ul id="tag-toggle" class="dropdown-menu dropdown-md p-v-0">
+-<a class="dropdown-item" href="#">@DBtest</a>
++<a class="dropdown-item" href="#">@teacher</a>
+ </ul>
+ </li>
+ </ul>
+@@ -254,9 +254,9 @@
+           tag=""
+           device="">
+           <div class="test-detail">
+-            <p class="name">jdbc</p>
++            <p class="name">Add_Student_info</p>
+             <p class="text-sm">
+-              <span>3:03:50 PM</span> / <span>00:00:13:652</span>
++              <span>10:41:30 AM</span> / <span>00:00:34:049</span>
+               <span class="badge fail-bg log float-right">Fail</span>
+             </p>
+           </div>
+@@ -264,10 +264,10 @@
+ <div class="detail-head">
+ <div class="p-v-10">
+ <div class="info">
+-<h5 class="test-status text-fail">jdbc</h5>
+-<span class='badge badge-success'>04.28.2023 3:03:50 PM</span>
+-<span class='badge badge-danger'>04.28.2023 3:04:04 PM</span>
+-<span class='badge badge-default'>00:00:13:652</span>
++<h5 class="test-status text-fail">Add_Student_info</h5>
++<span class='badge badge-success'>05.02.2023 10:41:30 AM</span>
++<span class='badge badge-danger'>05.02.2023 10:42:04 AM</span>
++<span class='badge badge-default'>00:00:34:049</span>
+ &middot; <span class='uri-anchor badge badge-default'>#test-id=1</span>
+ <span class='badge badge-default pointer float-right ml-1 et'><i class="fa fa-chevron-down"></i></span>
+ <span class='badge badge-default pointer float-right ct'><i class="fa fa-chevron-up"></i></span>
+@@ -279,7 +279,7 @@
+   <div class="card">
+     <div class="card-header" role="tab">
+       <div class="card-title">
+-        <div class="node" id="2"><span class="badge log fail-bg mr-2">Fail</span>JDBC_DENEME</div>
++        <div class="node" id="2"><span class="badge log fail-bg mr-2">Fail</span>TC17_Add_Student_info_POST</div>
+           <div class="status-avatar float-right mr-4">
+             <i class="fa fa-paperclip"></i>
+           </div>
+@@ -287,29 +287,491 @@
+     </div>
+         <div class="">
+           <div class="card-body">
+-              <div class="step fail-bg" title="stepdefinitions.Api_Test.student_info_controller.DataBaseDeneme.queryGonderir()">
+-                <span>Given query gonderir</span>
++              <div class="step fail-bg" title="BEFORE">
++                <span>hooks.Hooks.beforeApiTeacher()</span>
+       <div>
+-        <textarea disabled class="code-block">java.sql.SQLException: No suitable driver found for jdbc:postgresql://164.92.252.42:5432/school_management
+-	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:708)
+-	at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:230)
+-	at stepdefinitions.Api_Test.student_info_controller.DataBaseDeneme.queryGonderir(DataBaseDeneme.java:20)
+-	at ✽.query gonderir(file:///C:/Users/ferhat/IdeaProjects/team11/./src/test/resources/features/ApiFeatures/jdbc_deneme.feature:4)
++        <textarea disabled class="code-block">java.net.ConnectException: Connection refused: connect
++	at java.base/sun.nio.ch.Net.connect0(Native Method)
++	at java.base/sun.nio.ch.Net.connect(Net.java:579)
++	at java.base/sun.nio.ch.Net.connect(Net.java:568)
++	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:585)
++	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
++	at java.base/java.net.Socket.connect(Socket.java:633)
++	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:121)
++	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:180)
++	at org.apache.http.impl.conn.ManagedClientConnectionImpl.open(ManagedClientConnectionImpl.java:326)
++	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:605)
++	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:440)
++	at org.apache.http.impl.client.AbstractHttpClient.doExecute(AbstractHttpClient.java:835)
++	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:83)
++	at io.restassured.internal.RestAssuredHttpBuilder.doRequest(RestAssuredHttpBuilder.java:141)
++	at io.restassured.internal.http.HTTPBuilder.post(HTTPBuilder.java:349)
++	at io.restassured.internal.http.HTTPBuilder$post$2.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:125)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:148)
++	at io.restassured.internal.RequestSpecificationImpl.sendRequest(RequestSpecificationImpl.groovy:1209)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$sendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:125)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:166)
++	at io.restassured.internal.filter.SendRequestFilter.filter(SendRequestFilter.groovy:30)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter$0.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.time.TimingFilter.filter(TimingFilter.java:56)
++	at io.restassured.filter.Filter$filter$0.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.FilterContext$next.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:125)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:148)
++	at io.restassured.internal.filter.CsrfFilter.filter(CsrfFilter.groovy:70)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:125)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:157)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.FilterContext$next.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:125)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:148)
++	at io.restassured.internal.RequestSpecificationImpl.applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy:1704)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.callCurrent(PogoInterceptableSite.java:57)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:49)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:171)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:203)
++	at io.restassured.internal.RequestSpecificationImpl.applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy:1710)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.callCurrent(PogoInterceptableSite.java:57)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCallCurrent(CallSiteArray.java:49)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:171)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:203)
++	at io.restassured.internal.RequestSpecificationImpl.post(RequestSpecificationImpl.groovy:176)
++	at io.restassured.internal.RequestSpecificationImpl.post(RequestSpecificationImpl.groovy)
++	at utilities.ManagementonSchoolsAuthentication.generateToken(ManagementonSchoolsAuthentication.java:19)
++	at base_urls.ManagementonSchoolsBaseUrl.schoolsetupTeacher(ManagementonSchoolsBaseUrl.java:24)
++	at hooks.Hooks.beforeApiTeacher(Hooks.java:24)
+ </textarea>
+       
+       </div>
+               </div>
+-              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.DataBaseDeneme.valideteData()">
+-                <span>Then validete data</span>
++              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.S01_Post.teacherSendsTheStudentInfoData()">
++                <span>Given teacher sends the student info data_POST</span>
++      <div>Step skipped
++      </div>
++              </div>
++              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.S01_Post.teacherGetsTheStudentInfoDataAndAssert()">
++                <span>Then teacher gets the student info data and assert_POST</span>
+       <div>Step skipped
+       </div>
+               </div>
+               <div class="step pass-bg" title="AFTER">
+                 <span>hooks.Hooks.tearDownScenarios(io.cucumber.java.Scenario)</span>
+-      <div>failed_scenario_JDBC_DENEME
++      <div>failed_scenario_TC17_Add_Student_info_POST
+           <div class="row mb-3"><div class="col-md-3">
+ <img data-featherlight='../embedded1.png' src="../embedded1.png">
+     
++    </div></div>
++</div>
++      <div>
++      </div>
++              </div>
++          </div>
++        </div>
++  </div>
++  <div class="card">
++    <div class="card-header" role="tab">
++      <div class="card-title">
++        <div class="node" id="7"><span class="badge log fail-bg mr-2">Fail</span>TC17_Add_Student_info_PUT</div>
++          <div class="status-avatar float-right mr-4">
++            <i class="fa fa-paperclip"></i>
++          </div>
++      </div>
++    </div>
++        <div class="">
++          <div class="card-body">
++              <div class="step fail-bg" title="BEFORE">
++                <span>hooks.Hooks.beforeApiTeacher()</span>
++      <div>
++        <textarea disabled class="code-block">java.net.ConnectException: Connection refused: connect
++	at java.base/sun.nio.ch.Net.connect0(Native Method)
++	at java.base/sun.nio.ch.Net.connect(Net.java:579)
++	at java.base/sun.nio.ch.Net.connect(Net.java:568)
++	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:585)
++	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
++	at java.base/java.net.Socket.connect(Socket.java:633)
++	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:121)
++	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:180)
++	at org.apache.http.impl.conn.ManagedClientConnectionImpl.open(ManagedClientConnectionImpl.java:326)
++	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:605)
++	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:440)
++	at org.apache.http.impl.client.AbstractHttpClient.doExecute(AbstractHttpClient.java:835)
++	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:83)
++	at io.restassured.internal.RestAssuredHttpBuilder.doRequest(RestAssuredHttpBuilder.java:141)
++	at io.restassured.internal.http.HTTPBuilder.post(HTTPBuilder.java:349)
++	at io.restassured.internal.http.HTTPBuilder$post$2.call(Unknown Source)
++	at io.restassured.internal.RequestSpecificationImpl.sendRequest(RequestSpecificationImpl.groovy:1209)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$sendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:166)
++	at io.restassured.internal.filter.SendRequestFilter.filter(SendRequestFilter.groovy:30)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter$0.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.time.TimingFilter.filter(TimingFilter.java:56)
++	at io.restassured.filter.Filter$filter$0.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.FilterContext$next.call(Unknown Source)
++	at io.restassured.internal.filter.CsrfFilter.filter(CsrfFilter.groovy:70)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.FilterContext$next.call(Unknown Source)
++	at io.restassured.internal.RequestSpecificationImpl.applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy:1704)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.callCurrent(PogoInterceptableSite.java:57)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:203)
++	at io.restassured.internal.RequestSpecificationImpl.applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy:1710)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.callCurrent(PogoInterceptableSite.java:57)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:203)
++	at io.restassured.internal.RequestSpecificationImpl.post(RequestSpecificationImpl.groovy:176)
++	at io.restassured.internal.RequestSpecificationImpl.post(RequestSpecificationImpl.groovy)
++	at utilities.ManagementonSchoolsAuthentication.generateToken(ManagementonSchoolsAuthentication.java:19)
++	at base_urls.ManagementonSchoolsBaseUrl.schoolsetupTeacher(ManagementonSchoolsBaseUrl.java:24)
++	at hooks.Hooks.beforeApiTeacher(Hooks.java:24)
++</textarea>
++      
++      </div>
++              </div>
++              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.S02_Put.teacherSendsTheStudentInfoData_PUT()">
++                <span>Given teacher sends the student info data_PUT</span>
++      <div>Step skipped
++      </div>
++              </div>
++              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.S02_Put.teacherGetsTheStudentInfoDataAndAssert_PUT()">
++                <span>Then teacher gets the student info data and assert_PUT</span>
++      <div>Step skipped
++      </div>
++              </div>
++              <div class="step pass-bg" title="AFTER">
++                <span>hooks.Hooks.tearDownScenarios(io.cucumber.java.Scenario)</span>
++      <div>failed_scenario_TC17_Add_Student_info_PUT
++          <div class="row mb-3"><div class="col-md-3">
++<img data-featherlight='../embedded2.png' src="../embedded2.png">
++    
++    </div></div>
++</div>
++      <div>
++      </div>
++              </div>
++          </div>
++        </div>
++  </div>
++  <div class="card">
++    <div class="card-header" role="tab">
++      <div class="card-title">
++        <div class="node" id="12"><span class="badge log fail-bg mr-2">Fail</span>TC17_Add_Student_info_DELETE</div>
++          <div class="status-avatar float-right mr-4">
++            <i class="fa fa-paperclip"></i>
++          </div>
++      </div>
++    </div>
++        <div class="">
++          <div class="card-body">
++              <div class="step fail-bg" title="BEFORE">
++                <span>hooks.Hooks.beforeApiTeacher()</span>
++      <div>
++        <textarea disabled class="code-block">java.net.ConnectException: Connection refused: connect
++	at java.base/sun.nio.ch.Net.connect0(Native Method)
++	at java.base/sun.nio.ch.Net.connect(Net.java:579)
++	at java.base/sun.nio.ch.Net.connect(Net.java:568)
++	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:585)
++	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
++	at java.base/java.net.Socket.connect(Socket.java:633)
++	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:121)
++	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:180)
++	at org.apache.http.impl.conn.ManagedClientConnectionImpl.open(ManagedClientConnectionImpl.java:326)
++	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:605)
++	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:440)
++	at org.apache.http.impl.client.AbstractHttpClient.doExecute(AbstractHttpClient.java:835)
++	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:83)
++	at io.restassured.internal.RestAssuredHttpBuilder.doRequest(RestAssuredHttpBuilder.java:141)
++	at io.restassured.internal.http.HTTPBuilder.post(HTTPBuilder.java:349)
++	at io.restassured.internal.http.HTTPBuilder$post$2.call(Unknown Source)
++	at io.restassured.internal.RequestSpecificationImpl.sendRequest(RequestSpecificationImpl.groovy:1209)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$sendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:166)
++	at io.restassured.internal.filter.SendRequestFilter.filter(SendRequestFilter.groovy:30)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter$0.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.time.TimingFilter.filter(TimingFilter.java:56)
++	at io.restassured.filter.Filter$filter$0.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.FilterContext$next.call(Unknown Source)
++	at io.restassured.internal.filter.CsrfFilter.filter(CsrfFilter.groovy:70)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.FilterContext$next.call(Unknown Source)
++	at io.restassured.internal.RequestSpecificationImpl.applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy:1704)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.callCurrent(PogoInterceptableSite.java:57)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:203)
++	at io.restassured.internal.RequestSpecificationImpl.applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy:1710)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.callCurrent(PogoInterceptableSite.java:57)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:203)
++	at io.restassured.internal.RequestSpecificationImpl.post(RequestSpecificationImpl.groovy:176)
++	at io.restassured.internal.RequestSpecificationImpl.post(RequestSpecificationImpl.groovy)
++	at utilities.ManagementonSchoolsAuthentication.generateToken(ManagementonSchoolsAuthentication.java:19)
++	at base_urls.ManagementonSchoolsBaseUrl.schoolsetupTeacher(ManagementonSchoolsBaseUrl.java:24)
++	at hooks.Hooks.beforeApiTeacher(Hooks.java:24)
++</textarea>
++      
++      </div>
++              </div>
++              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.S03_Delete.teacherSendsTheStudentInfoData_DELETE()">
++                <span>Given teacher sends the student info data_DELETE</span>
++      <div>Step skipped
++      </div>
++              </div>
++              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.S03_Delete.teacherGetsTheStudentInfoDataAndAssert_DELETE()">
++                <span>Then teacher gets the student info data and assert_DELETE</span>
++      <div>Step skipped
++      </div>
++              </div>
++              <div class="step pass-bg" title="AFTER">
++                <span>hooks.Hooks.tearDownScenarios(io.cucumber.java.Scenario)</span>
++      <div>failed_scenario_TC17_Add_Student_info_DELETE
++          <div class="row mb-3"><div class="col-md-3">
++<img data-featherlight='../embedded3.png' src="../embedded3.png">
++    
++    </div></div>
++</div>
++      <div>
++      </div>
++              </div>
++          </div>
++        </div>
++  </div>
++  <div class="card">
++    <div class="card-header" role="tab">
++      <div class="card-title">
++        <div class="node" id="17"><span class="badge log fail-bg mr-2">Fail</span>TC17_Add_Student_info_GET</div>
++          <div class="status-avatar float-right mr-4">
++            <i class="fa fa-paperclip"></i>
++          </div>
++      </div>
++    </div>
++        <div class="">
++          <div class="card-body">
++              <div class="step fail-bg" title="BEFORE">
++                <span>hooks.Hooks.beforeApiTeacher()</span>
++      <div>
++        <textarea disabled class="code-block">java.net.ConnectException: Connection refused: connect
++	at java.base/sun.nio.ch.Net.connect0(Native Method)
++	at java.base/sun.nio.ch.Net.connect(Net.java:579)
++	at java.base/sun.nio.ch.Net.connect(Net.java:568)
++	at java.base/sun.nio.ch.NioSocketImpl.connect(NioSocketImpl.java:585)
++	at java.base/java.net.SocksSocketImpl.connect(SocksSocketImpl.java:327)
++	at java.base/java.net.Socket.connect(Socket.java:633)
++	at org.apache.http.conn.scheme.PlainSocketFactory.connectSocket(PlainSocketFactory.java:121)
++	at org.apache.http.impl.conn.DefaultClientConnectionOperator.openConnection(DefaultClientConnectionOperator.java:180)
++	at org.apache.http.impl.conn.ManagedClientConnectionImpl.open(ManagedClientConnectionImpl.java:326)
++	at org.apache.http.impl.client.DefaultRequestDirector.tryConnect(DefaultRequestDirector.java:605)
++	at org.apache.http.impl.client.DefaultRequestDirector.execute(DefaultRequestDirector.java:440)
++	at org.apache.http.impl.client.AbstractHttpClient.doExecute(AbstractHttpClient.java:835)
++	at org.apache.http.impl.client.CloseableHttpClient.execute(CloseableHttpClient.java:83)
++	at io.restassured.internal.RestAssuredHttpBuilder.doRequest(RestAssuredHttpBuilder.java:141)
++	at io.restassured.internal.http.HTTPBuilder.post(HTTPBuilder.java:349)
++	at io.restassured.internal.http.HTTPBuilder$post$2.call(Unknown Source)
++	at io.restassured.internal.RequestSpecificationImpl.sendRequest(RequestSpecificationImpl.groovy:1209)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$sendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.call(AbstractCallSite.java:166)
++	at io.restassured.internal.filter.SendRequestFilter.filter(SendRequestFilter.groovy:30)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter$0.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.time.TimingFilter.filter(TimingFilter.java:56)
++	at io.restassured.filter.Filter$filter$0.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.FilterContext$next.call(Unknown Source)
++	at io.restassured.internal.filter.CsrfFilter.filter(CsrfFilter.groovy:70)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:45)
++	at io.restassured.filter.Filter$filter.call(Unknown Source)
++	at io.restassured.internal.filter.FilterContextImpl.next(FilterContextImpl.groovy:72)
++	at io.restassured.filter.FilterContext$next.call(Unknown Source)
++	at io.restassured.internal.RequestSpecificationImpl.applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy:1704)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.callCurrent(PogoInterceptableSite.java:57)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:203)
++	at io.restassured.internal.RequestSpecificationImpl.applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy:1710)
++	at io.restassured.internal.RequestSpecificationImpl.this$2$applyPathParamsAndSendRequest(RequestSpecificationImpl.groovy)
++	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
++	at java.base/java.lang.reflect.Method.invoke(Method.java:577)
++	at org.codehaus.groovy.reflection.CachedMethod.invoke(CachedMethod.java:343)
++	at groovy.lang.MetaMethod.doMethodInvoke(MetaMethod.java:328)
++	at groovy.lang.MetaClassImpl.doInvokeMethod(MetaClassImpl.java:1348)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1103)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:1009)
++	at groovy.lang.MetaClassImpl.invokeMethod(MetaClassImpl.java:792)
++	at io.restassured.internal.RequestSpecificationImpl.invokeMethod(RequestSpecificationImpl.groovy)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.call(PogoInterceptableSite.java:46)
++	at org.codehaus.groovy.runtime.callsite.PogoInterceptableSite.callCurrent(PogoInterceptableSite.java:57)
++	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:203)
++	at io.restassured.internal.RequestSpecificationImpl.post(RequestSpecificationImpl.groovy:176)
++	at io.restassured.internal.RequestSpecificationImpl.post(RequestSpecificationImpl.groovy)
++	at utilities.ManagementonSchoolsAuthentication.generateToken(ManagementonSchoolsAuthentication.java:19)
++	at base_urls.ManagementonSchoolsBaseUrl.schoolsetupTeacher(ManagementonSchoolsBaseUrl.java:24)
++	at hooks.Hooks.beforeApiTeacher(Hooks.java:24)
++</textarea>
++      
++      </div>
++              </div>
++              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.S04_Get.teacherSendsTheStudentInfoData_GET()">
++                <span>Given teacher sends the student info data_GET</span>
++      <div>Step skipped
++      </div>
++              </div>
++              <div class="step skip-bg" title="stepdefinitions.Api_Test.student_info_controller.S04_Get.teacherGetsTheStudentInfoDataAndAssert_GET()">
++                <span>Then teacher gets the student info data and assert_GET</span>
++      <div>Step skipped
++      </div>
++              </div>
++              <div class="step pass-bg" title="AFTER">
++                <span>hooks.Hooks.tearDownScenarios(io.cucumber.java.Scenario)</span>
++      <div>failed_scenario_TC17_Add_Student_info_GET
++          <div class="row mb-3"><div class="col-md-3">
++<img data-featherlight='../embedded4.png' src="../embedded4.png">
++    
+     </div></div>
+ </div>
+       <div>
+@@ -341,15 +803,15 @@
+ <li class="test-item">
+ <div class="test-detail">
+ <span class="meta">
+-<span class='badge log badge-danger'>1</span>
++<span class='badge log badge-danger'>4</span>
+ </span>
+-<p class="name">@DBtest</p>
+-<p class="duration text-sm">1 tests</p>
++<p class="name">@teacher</p>
++<p class="duration text-sm">4 tests</p>
+ </div>
+ <div class="test-contents d-none">
+ <div class="info">
+-<h4>@DBtest</h4>
+-<span status="fail" class='badge log badge-danger'>1 failed</span>
++<h4>@teacher</h4>
++<span status="fail" class='badge log badge-danger'>4 failed</span>
+ </div>
+ <table class='table table-sm mt-4'>
+ <thead>
+@@ -362,11 +824,41 @@
+ <tbody>
+ <tr class="tag-test-status" status="fail">
+ <td><span class="badge log fail-bg">Fail</span></td>
+-<td>15:03:50 PM</td>
++<td>10:41:30 AM</td>
+ <td>
+-<a href="#" class="linked" test-id='1' id='2'>JDBC_DENEME</a>
++<a href="#" class="linked" test-id='1' id='2'>TC17_Add_Student_info_POST</a>
+ <div class="">
+-<span class="badge badge-default">jdbc.JDBC_DENEME</span>
++<span class="badge badge-default">Add_Student_info.TC17_Add_Student_info_POST</span>
++</div>
++</td>
++</tr>
++<tr class="tag-test-status" status="fail">
++<td><span class="badge log fail-bg">Fail</span></td>
++<td>10:41:45 AM</td>
++<td>
++<a href="#" class="linked" test-id='1' id='7'>TC17_Add_Student_info_PUT</a>
++<div class="">
++<span class="badge badge-default">Add_Student_info.TC17_Add_Student_info_PUT</span>
++</div>
++</td>
++</tr>
++<tr class="tag-test-status" status="fail">
++<td><span class="badge log fail-bg">Fail</span></td>
++<td>10:41:51 AM</td>
++<td>
++<a href="#" class="linked" test-id='1' id='12'>TC17_Add_Student_info_DELETE</a>
++<div class="">
++<span class="badge badge-default">Add_Student_info.TC17_Add_Student_info_DELETE</span>
++</div>
++</td>
++</tr>
++<tr class="tag-test-status" status="fail">
++<td><span class="badge log fail-bg">Fail</span></td>
++<td>10:41:57 AM</td>
++<td>
++<a href="#" class="linked" test-id='1' id='17'>TC17_Add_Student_info_GET</a>
++<div class="">
++<span class="badge badge-default">Add_Student_info.TC17_Add_Student_info_GET</span>
+ </div>
+ </td>
+ </tr>
+@@ -393,15 +885,15 @@
+ <li class="test-item">
+ <div class="test-detail">
+ <span class="meta">
+-<span class='badge log badge-danger'>1</span>
++<span class='badge log badge-danger'>4</span>
+ </span>
+-<p class="name">java.sql.SQLException</p>
+-<p class="duration text-sm">1 tests</p>
++<p class="name">java.net.ConnectException</p>
++<p class="duration text-sm">4 tests</p>
+ </div>
+ <div class="test-contents d-none">
+ <div class="info">
+-<h4>java.sql.SQLException</h4>
+-<span status="fail" class='badge log badge-danger'>1 failed</span>
++<h4>java.net.ConnectException</h4>
++<span status="fail" class='badge log badge-danger'>4 failed</span>
+ </div>
+ <table class='table table-sm mt-4'>
+ <thead>
+@@ -414,11 +906,41 @@
+ <tbody>
+ <tr class="tag-test-status" status="fail">
+ <td><span class="badge log fail-bg">Fail</span></td>
+-<td>15:03:50 PM</td>
++<td>10:41:30 AM</td>
++<td>
++<a href="#" class="linked" test-id='1' id='3'>hooks.Hooks.beforeApiTeacher()</a>
++<div class="">
++<span class="badge badge-default">Add_Student_info.TC17_Add_Student_info_POST.hooks.Hooks.beforeApiTeacher()</span>
++</div>
++</td>
++</tr>
++<tr class="tag-test-status" status="fail">
++<td><span class="badge log fail-bg">Fail</span></td>
++<td>10:41:45 AM</td>
+ <td>
+-<a href="#" class="linked" test-id='1' id='3'>Given query gonderir</a>
++<a href="#" class="linked" test-id='1' id='8'>hooks.Hooks.beforeApiTeacher()</a>
+ <div class="">
+-<span class="badge badge-default">jdbc.JDBC_DENEME.Given query gonderir</span>
++<span class="badge badge-default">Add_Student_info.TC17_Add_Student_info_PUT.hooks.Hooks.beforeApiTeacher()</span>
++</div>
++</td>
++</tr>
++<tr class="tag-test-status" status="fail">
++<td><span class="badge log fail-bg">Fail</span></td>
++<td>10:41:51 AM</td>
++<td>
++<a href="#" class="linked" test-id='1' id='13'>hooks.Hooks.beforeApiTeacher()</a>
++<div class="">
++<span class="badge badge-default">Add_Student_info.TC17_Add_Student_info_DELETE.hooks.Hooks.beforeApiTeacher()</span>
++</div>
++</td>
++</tr>
++<tr class="tag-test-status" status="fail">
++<td><span class="badge log fail-bg">Fail</span></td>
++<td>10:41:57 AM</td>
++<td>
++<a href="#" class="linked" test-id='1' id='18'>hooks.Hooks.beforeApiTeacher()</a>
++<div class="">
++<span class="badge badge-default">Add_Student_info.TC17_Add_Student_info_GET.hooks.Hooks.beforeApiTeacher()</span>
+ </div>
+ </td>
+ </tr>

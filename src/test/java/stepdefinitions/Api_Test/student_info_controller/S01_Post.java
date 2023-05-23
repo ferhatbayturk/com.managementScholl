@@ -12,7 +12,7 @@ import static base_urls.ManagementonSchoolsBaseUrl.specTeacher;
 import static io.restassured.RestAssured.given;
 import static org.junit.Assert.assertEquals;
 public class S01_Post {
-    static int student_info_id;
+    public static int student_info_id;
     Response response;
     StudentInfoPojo expectedData;
     static int absente = Faker.instance().number().numberBetween(4, 99);
